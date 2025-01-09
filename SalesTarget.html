@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./SalesTarg/SalesTarg.css">
+    <title>Sales Target</title>
+</head>
+<body>
+    <header>
+        <h3>Sales Targets</h3>
+    </header>
+    <div id="mainTargetDiv">
+        <label for="salesTargetTable">Click on the table below to select store sales target record.</label>
+        <div id="targetDiv">
+            <table id="salesTargetTable">
+                <!-- <thead> will be dynamically inserted here if not already present -->
+                <tbody id="tbodyTarget">
+                    <!-- Rows will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <br>
+    <br>
+
+    <div id="TargetChart">
+        <canvas id="targetChart"></canvas>
+    </div>
+    <br>
+    <br>
+
+    <div id="tableDiv">
+        <div id="tableDivLabel">
+            <label id="labelDataTabl1"></label>
+            <label id="labelDataTabl2"></label>
+            <label id="labelDataTabl3"></label>
+        </div>
+        <div >
+            <table id="salesDataTable">
+                <!-- <thead> will be dynamically inserted here if not already present -->
+                <tbody>
+                    <!-- Rows will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <footer style="height: 20px; padding: 10px;"></footer>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="./SalesTarg/SalesTarg.js"></script>
+
+</body>
+</html>
