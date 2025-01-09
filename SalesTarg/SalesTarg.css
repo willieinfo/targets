@@ -6,7 +6,7 @@ body {
     width: 100%;
     align-items: center;
     background-color: rgb(166, 165, 165);
-    background-image: linear-gradient(to right, #ffff, lightblue  ); 
+    background-image: linear-gradient(to right, #ffff, rgb(0,128,192)  ); 
 
     --maxWidth: 1200px; 
     --maxTargetHeight: 400px;
@@ -89,6 +89,7 @@ body, html {
     align-items: center; 
     font-size: 10px;
     padding-right: 10px;
+    color: white;
 }
 th {
     text-align: center !important; 
@@ -118,6 +119,8 @@ th {
     justify-content: space-between;
     align-items: center; /* Center elements vertically */
     padding: 10px;
+    font-weight: bold;
+    background-image: linear-gradient(to bottom, #ffff, rgb(112,112,112)  ); 
 }
 #salesDataTable td {
     height: 20px !important;
