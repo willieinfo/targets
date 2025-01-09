@@ -25,7 +25,7 @@ body, html {
 #mainTargetDiv {
     display: flex;
     flex-direction: column;
-    width: 100%;
+    width: 90%;
     max-width: var(--maxWidth);
 }
 #targetDiv {
@@ -129,6 +129,9 @@ th {
 }
 
 #tableDiv {
+    display: flex;
+    flex-direction: column;
+
     width: 90%;   
     background-color: white;
     margin-bottom: 20px;
@@ -149,3 +152,32 @@ td, th {
 #trTableDiv:nth-child(even) {
     background-color: #dddddd;
 }
+
+
+
+/* Icon Scroll */
+/* Floating down arrow icon */
+#scrollIcon {
+    position: fixed;
+    top: 40px;
+    right: 40px;
+
+    width: 60px;
+    height: 60px;
+    background-color: rgba(0, 0, 0, 0.5); /* Transparent black */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    font-size: 24px;
+    z-index: 1000; /* Make sure it's on top */
+    transition: opacity 0.3s ease;
+}
+
+#scrollIcon.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
