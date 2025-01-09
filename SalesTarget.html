@@ -47,9 +47,44 @@
             </table>
         </div>
     </div>
+
     <footer style="height: 20px; padding: 10px;"></footer>
+
+    <!-- Floating scroll icon -->
+    <div id="scrollIcon" class="hidden">
+        &#8595;  <!-- Down arrow character -->
+    </div>
+
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script defer src="./SalesTarg/SalesTarg.js"></script>
+
+    <script>
+        // JavaScript for scrolling and hiding the icon when at the bottom of the page
+        const scrollIcon = document.getElementById('scrollIcon');
+
+        // Check if we are at the bottom of the page
+        function checkIfAtBottom() {
+            const scrollPosition = window.scrollY + window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            if (scrollPosition >= documentHeight) {
+                scrollIcon.classList.add('hidden'); // Hide icon if at bottom
+            } else {
+                scrollIcon.classList.remove('hidden'); // Show icon otherwise
+            }
+        }
+
+        // Scroll down by a portion when the icon is clicked
+        scrollIcon.addEventListener('click', function() {
+            window.scrollBy(0, window.innerHeight * 0.5); // Scroll by 50% of the viewport height
+        });
+
+        // Check page scroll position on load and on scroll
+        window.addEventListener('load', checkIfAtBottom);
+        window.addEventListener('scroll', checkIfAtBottom);
+    </script>
+
+
 
 </body>
 </html>
