@@ -225,8 +225,10 @@ async function storeTargets() {
     
         // Add rows to the table
         sortedData.forEach((item) => {
+            const isItalic = item.targdate === item.asofdate ? 'font-style: italic; font-weight: bold' : '';
+
             const rowHTML = `
-                <tr class="trTargetDiv" data-storname="${item.storname}" data-targdate="${item.targdate}">
+                <tr class="trTargetDiv" data-storname="${item.storname}" data-targdate="${item.targdate}" style="${isItalic}">
                     <td>${item.storname}</td>
                     <td>${formatter.format(item.targsale)}</td>
                     <td>${item.begindte}</td>
@@ -298,7 +300,7 @@ function populateTable(filteredData, runtotal, pctachvd) {
                     <th>Date</th>
                     <th>Daily Net Sales</th>
                     <th>Running Daily Target</th>
-                    <th>Running Sales Total</th>
+                    <th>Running Total Sales</th>
                     <th>Achievement (%)</th>
                 </tr>
             </thead>
