@@ -1,0 +1,141 @@
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+    background-color: rgb(166, 165, 165);
+    background-image: linear-gradient(to right, #ffff, lightblue  ); 
+
+    --maxWidth: 1200px; 
+    --maxTargetHeight: 400px;
+    --rowHeight: 30px;
+}
+
+/* Make the body take up full height of the window */
+body, html {
+    margin: 0;
+    padding: 0;
+    margin-bottom: 20px;
+    height: 100%;  
+}
+
+/*Sales Target Table*/
+#mainTargetDiv {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: var(--maxWidth);
+}
+#targetDiv {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    overflow-y: auto; 
+    max-height: var(--maxTargetHeight); 
+    background-color: aquamarine;
+}
+#salesTargetTable {
+    width: 100%;
+    border-collapse: collapse;
+    cursor: pointer;
+}
+#salesTargetTable thead {
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+#salesTargetTable td,
+#salesTargetTable tr  {
+    overflow: hidden;
+    text-overflow: ellipsis; /* Optional: Add ellipsis for overflowing text */
+    height: var(--rowHeight) !important; 
+    padding: 0;
+}
+.trTargetDiv {
+    background-color: white;
+}
+.trTargetDiv:hover {
+    color: black;
+    background-color: yellow;
+}
+
+
+#mainTargetDiv label{
+    font-style: italic;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 18px;
+}
+/* Ensure the div container fills the available space */
+#TargetChart {
+    width: 90%;   
+    height: 100%;  
+    display: flex; 
+    flex-direction: column;
+    align-items: center;
+    background-color: white;
+    max-width: var(--maxWidth);
+    transition: margin-top 0.3s ease; /* Smooth top adjustment */
+}
+#targetChart  {
+    width: 100%;   
+    height: 100%;  
+}
+th {
+    text-align: center !important; 
+    vertical-align: middle !important; 
+    padding: 10px; 
+    background-color: darkgreen;
+    color: white;
+    height: auto;
+
+    white-space: normal; /* Allows text wrapping */
+    word-wrap: break-word; /* Ensures long words break */
+    max-width: 150px; /* Optional: Set a width to encourage wrapping */    
+}
+#trTableDiv td, .trTargetDiv td{
+    text-align: center ; 
+    vertical-align: middle ; 
+}
+#tdRun_Targ{
+    color: darkgreen
+}
+#tdRunTotal{
+    color: rgb(0,0,255)
+}
+
+#tableDivLabel {
+    display: flex; 
+    justify-content: space-between;
+    align-items: center; /* Center elements vertically */
+    padding: 10px;
+}
+#salesDataTable td {
+    height: 20px !important;
+    line-height: 20px; /* Ensures text height matches the cell height */
+    padding: 0; /* Reduces extra spacing inside the cell */
+}
+
+#tableDiv {
+    width: 90%;   
+    background-color: white;
+    margin-bottom: 20px;
+    max-width: var(--maxWidth);
+}
+#salesDataTable {
+    width: 100%;   
+}
+
+table {
+    border-collapse: collapse;
+}
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+#trTableDiv:nth-child(even) {
+    background-color: #dddddd;
+}
