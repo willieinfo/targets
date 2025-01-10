@@ -210,7 +210,7 @@ async function storeTargets() {
             item.pctachvd = (item.totalnet / item.targsale) * 100;
         });
     
-        // Sort groupedData by storname and targdate
+        // Sort groupedData by storname + targdate
         const sortedData = Object.entries(groupedData)
             .sort((a, b) => {
                 const [stornameA, targdateA] = a[0].split('-');
