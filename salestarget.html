@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./SalesTarg/SalesTarg.css">
+    <title>Sales Target</title>
+</head>
+<body>
+    <header>
+        <h3>Sales Targets</h3>
+    </header>
+    <div id="mainTargetDiv">
+        <label for="salesTargetTable">Click on the table below to select store sales target record.</label>
+        <div id="targetDiv">
+            <table id="salesTargetTable">
+                <!-- <thead> will be dynamically inserted here if not already present -->
+                <tbody id="tbodyTarget">
+                    <!-- Rows will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
+        <label id="targdateReached">Note: Target date is reached in bold</label>
+
+    </div>
+    <br>
+    <br>
+
+    <div id="TargetChart">
+        <canvas id="targetChart"></canvas>
+    </div>
+    <br>
+    <br>
+
+    <div id="tableDiv">
+        <div id="tableDivLabel">
+            <label id="labelDataTabl1"></label>
+            <label id="labelDataTabl2"></label>
+            <label id="labelDataTabl3"></label>
+        </div>
+        <div >
+            <table id="salesDataTable">
+                <!-- <thead> will be dynamically inserted here if not already present -->
+                <tbody>
+                    <!-- Rows will be dynamically inserted here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <footer style="height: 20px; padding: 10px;"></footer>
+
+    <!-- Floating scroll icon -->
+    <div id="scrollIcon" class="hidden">
+        &#8595;  <!-- Down arrow character -->
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="./SalesTarg/SalesTarg.js"></script>
+
+    <script>
+        // JavaScript for scrolling and hiding the icon when at the bottom of the page
+        const scrollIcon = document.getElementById('scrollIcon');
+
+        // Check if we are at the bottom of the page
+        function checkIfAtBottom() {
+            const scrollPosition = window.scrollY + window.innerHeight;
+            const documentHeight = document.documentElement.scrollHeight;
+            if (scrollPosition >= documentHeight) {
+                scrollIcon.classList.add('hidden'); // Hide icon if at bottom
+            } else {
+                scrollIcon.classList.remove('hidden'); // Show icon otherwise
+            }
+        }
+
+        // Scroll down by a portion when the icon is clicked
+        scrollIcon.addEventListener('click', function() {
+            window.scrollBy(0, window.innerHeight * 0.5); // Scroll by 50% of the viewport height
+        });
+
+        // Check page scroll position on load and on scroll
+        window.addEventListener('load', checkIfAtBottom);
+        window.addEventListener('scroll', checkIfAtBottom);
+    </script>
+
+
+
+</body>
+</html>
