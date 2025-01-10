@@ -48,7 +48,7 @@ async function SalesTarget(cStorname='',dTargDate='') {
         const maxDate = new Date(Math.max(...dates));
         document.getElementById('labelDataTabl1').innerText=`${cStorname.trim()}`
         document.getElementById('labelDataTabl2').innerText=`Target Date: ${maxDate.toLocaleDateString('en-US')}`
-        document.getElementById('labelDataTabl3').innerText=`Target Sales: ${formatter.format(targsale)}`
+        document.getElementById('labelDataTabl3').innerText=`Projected Sales: ${formatter.format(targsale)}`
         
         // Destroy existing chart if it exists
         if (targetChart) {
@@ -154,23 +154,22 @@ async function storeTargets() {
     tableBody.innerHTML = ''; // Clear any existing rows
 
     // Create the table header with template literals (only once)
-    if (!table.querySelector('thead')) { 
+    if (!table.querySelector('thead')) {
         const headerHTML = `
             <thead>
                 <tr>
                     <th>Store Name</th>
-                    <th>Sales Target</th>
+                    <th>Projected Sales</th>
                     <th>Starting Date</th>
                     <th>Target Date</th>
                     <th>As Of Date</th>
                     <th>Actual Sales</th>
-                    <th>Achievement (%)</th>
+                    <th>Achievement (%) on Projected Sales</th>
                 </tr>
             </thead>
         `;
         table.insertAdjacentHTML('afterbegin', headerHTML); // Insert the header at the start of the table
     }
-
 
     const dataTarget = "./SalesTarg/DB_SALEACHV.json";
 
@@ -180,7 +179,28 @@ async function storeTargets() {
     
         const detailTargets = await response.json();
     
-        // Group data by `storname` and `targdate`
+        // Sort the detailTargets array first by targdate (descending) and then by storname (ascending)
+        detailTargets.sort((a, b) => {
+            // Split targdate to get the individual components (MM/DD/YYYY)
+            const [monthA, dayA, yearA] = a.targdate.split('/').map(Number);
+            const [monthB, dayB, yearB] = b.targdate.split('/').map(Number);
+            
+            // Create Date objects using the components in the correct order
+            const dateA = new Date(yearA, monthA - 1, dayA); // Month is zero-indexed
+            const dateB = new Date(yearB, monthB - 1, dayB);
+    
+            // Sort by targdate in descending order (newest first)
+            if (dateA > dateB) return -1;  // Newer dates first
+            if (dateA < dateB) return 1;   // Older dates last
+    
+            // If targdate is the same, sort by storname in ascending order
+            if (a.storname < b.storname) return -1;
+            if (a.storname > b.storname) return 1;
+
+            return 0;  // If both date and storname are the same, maintain original order
+        });
+    
+        // Group data by storname and targdate
         const groupedData = detailTargets.reduce((acc, item) => {
             const key = `${item.storname}-${item.targdate}`;
             if (!acc[key]) {
@@ -204,25 +224,15 @@ async function storeTargets() {
             }
             return acc;
         }, {});
-    
+
         // Compute pctachvd for each group
         Object.values(groupedData).forEach(item => {
             item.pctachvd = (item.totalnet / item.targsale) * 100;
         });
-    
-        // Sort groupedData by storname + targdate
-        const sortedData = Object.entries(groupedData)
-            .sort((a, b) => {
-                const [stornameA, targdateA] = a[0].split('-');
-                const [stornameB, targdateB] = b[0].split('-');
-                // Sort by storname first
-                if (stornameA < stornameB) return -1;
-                if (stornameA > stornameB) return 1;
-                // If storname is the same, sort by targdate
-                return targdateA < targdateB ? -1 : targdateA > targdateB ? 1 : 0;
-            })
-            .map(([key, value]) => value); // Convert back to array of values
-    
+        
+        // Convert the groupedData back to an array
+        const sortedData = Object.values(groupedData);
+
         // Add rows to the table
         sortedData.forEach((item) => {
             const isItalic = item.targdate === item.asofdate ? 'font-style: italic; font-weight: bold' : '';
@@ -240,24 +250,23 @@ async function storeTargets() {
             `;
             tableBody.insertAdjacentHTML('beforeend', rowHTML); // Append the row to the tbody
         });
-        
 
-    // Highlight the first row by default
-    const firstRow = tableBody.querySelector('.trTargetDiv');
-    if (firstRow) {
-        highlightRow(firstRow);
-    }
-
-    // Add event listener to the rows
-    tableBody.addEventListener('click', (event) => {
-        const target = event.target.closest('.trTargetDiv');
-        if (target) {
-            highlightRow(target);
-            const storname = target.dataset.storname || '';
-            const targdate = target.dataset.targdate || '';
-            SalesTarget(storname, targdate);
+        // Highlight the first row by default
+        const firstRow = tableBody.querySelector('.trTargetDiv');
+        if (firstRow) {
+            highlightRow(firstRow);
         }
-    });
+
+        // Add event listener to the rows
+        tableBody.addEventListener('click', (event) => {
+            const target = event.target.closest('.trTargetDiv');
+            if (target) {
+                highlightRow(target);
+                const storname = target.dataset.storname || '';
+                const targdate = target.dataset.targdate || '';
+                SalesTarget(storname, targdate);
+            }
+        });
 
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -284,7 +293,10 @@ async function storeTargets() {
         }
     }
 }
+
 storeTargets();
+
+
 
 function populateTable(filteredData, runtotal, pctachvd) {
     const formatter = new Intl.NumberFormat('en-US'); // 'en-US' for U.S. formatting
@@ -301,7 +313,7 @@ function populateTable(filteredData, runtotal, pctachvd) {
                     <th>Daily Net Sales</th>
                     <th>Running Daily Target</th>
                     <th>Running Total Sales</th>
-                    <th>Achievement (%)</th>
+                    <th>Achievement (%) on Projected Sales</th>
                 </tr>
             </thead>
         `;
@@ -346,15 +358,27 @@ window.onload = async () => {
 
         const salesAchv = await response.json(); // Parse the JSON data
 
-        // Sort the salesAchv array by storname and targdate
-        const sortedSalesAchv = salesAchv.sort((a, b) => {
-            // Sort by storname first
-            if (a.storname < b.storname) return -1;
-            if (a.storname > b.storname) return 1;
-            // If storname is the same, sort by targdate
-            return a.targdate < b.targdate ? -1 : a.targdate > b.targdate ? 1 : 0;
-        });
+        // // Sort the salesAchv array by storname and targdate
+        // const sortedSalesAchv = salesAchv.sort((a, b) => {
+        //     // Sort by storname first
+        //     if (a.storname < b.storname) return -1;
+        //     if (a.storname > b.storname) return 1;
+        //     // If storname is the same, sort by targdate
+        //     return a.targdate < b.targdate ? -1 : a.targdate > b.targdate ? 1 : 0;
+        // });
 
+// Sort the salesAchv array by targdate first, then by storname
+const sortedSalesAchv = salesAchv.sort((a, b) => {
+    // Sort by targdate first
+    if (a.targdate < b.targdate) return -1;
+    if (a.targdate > b.targdate) return 1;
+
+    // If targdate is the same, sort by storname
+    if (a.storname < b.storname) return -1;
+    if (a.storname > b.storname) return 1;
+
+    return 0;
+});        
         // Use the first record's values as the initial parameters
         if (sortedSalesAchv.length > 0) {
             const firstRecord = sortedSalesAchv[0];

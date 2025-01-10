@@ -27,7 +27,7 @@ body, html {
     flex-direction: column;
     width: 90%;
     max-width: var(--maxWidth);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); /* Increased Y offset, blur, and opacity */
 }
 #targetDiv {
     display: flex;
@@ -79,6 +79,7 @@ body, html {
     background-color: white;
     max-width: var(--maxWidth);
     transition: margin-top 0.3s ease; /* Smooth top adjustment */
+
 }
 #targetChart  {
     width: 100%;   
