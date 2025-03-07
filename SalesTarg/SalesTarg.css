@@ -53,7 +53,7 @@ body, html {
     overflow: hidden;
     text-overflow: ellipsis; /* Optional: Add ellipsis for overflowing text */
     height: var(--rowHeight) !important; 
-    padding: 0;
+    padding: 0px 10px;
 }
 .trTargetDiv {
     background-color: white;
@@ -110,10 +110,15 @@ th {
     vertical-align: middle ; 
 }
 #tdRun_Targ{
-    color: darkgreen
+    color: darkgreen;
+    text-align: right;
 }
 #tdRunTotal{
-    color: rgb(0,0,255)
+    color: rgb(0,0,255);
+    text-align: right;
+}
+#tdNetSales {
+    text-align: right;
 }
 
 #tableDivLabel {

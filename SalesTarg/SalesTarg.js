@@ -1,9 +1,16 @@
 
+
 let targetChart = null; 
+const formatter = new Intl.NumberFormat('en-US', {
+    style: 'decimal',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });    
 
 // Function to fetch data and process the sales data for chart and table
 async function SalesTarget(cStorname='',dTargDate='') {
-    const formatter = new Intl.NumberFormat('en-US'); // 'en-US' for U.S. formatting
+    // const formatter = new Intl.NumberFormat('en-US'); // 'en-US' for U.S. formatting
+    
     const dataTarget = "./SalesTarg/DB_SALEACHV.json"; // Path to the JSON data file
     try {
         const response = await fetch(dataTarget);
@@ -148,7 +155,6 @@ async function SalesTarget(cStorname='',dTargDate='') {
 }
 
 async function storeTargets() {
-    const formatter = new Intl.NumberFormat('en-US'); // 'en-US' for U.S. formatting
     const table = document.getElementById('salesTargetTable');
     const tableBody = table.querySelector('tbody');
     tableBody.innerHTML = ''; // Clear any existing rows
@@ -158,6 +164,7 @@ async function storeTargets() {
         const headerHTML = `
             <thead>
                 <tr>
+                    <th></th>
                     <th>Store Name</th>
                     <th>Projected Sales</th>
                     <th>Starting Date</th>
@@ -179,27 +186,33 @@ async function storeTargets() {
     
         const detailTargets = await response.json();
     
-        // Sort the detailTargets array first by targdate (descending) and then by storname (ascending)
+   
         detailTargets.sort((a, b) => {
-            // Split targdate to get the individual components (MM/DD/YYYY)
-            const [monthA, dayA, yearA] = a.targdate.split('/').map(Number);
-            const [monthB, dayB, yearB] = b.targdate.split('/').map(Number);
-            
+            // Split begindte to get the individual components (MM/DD/YYYY)
+            const [monthA, dayA, yearA] = a.begindte.split('/').map(Number);
+            const [monthB, dayB, yearB] = b.begindte.split('/').map(Number);
+        
             // Create Date objects using the components in the correct order
             const dateA = new Date(yearA, monthA - 1, dayA); // Month is zero-indexed
             const dateB = new Date(yearB, monthB - 1, dayB);
-    
-            // Sort by targdate in descending order (newest first)
-            if (dateA > dateB) return -1;  // Newer dates first
-            if (dateA < dateB) return 1;   // Older dates last
-    
-            // If targdate is the same, sort by storname in ascending order
+        
+            // Sort by begindte (date) first (ascending order)
+            // if (dateA < dateB) return -1; // Older dates first
+            // if (dateA > dateB) return 1;  // Newer dates last
+        
+            // Sort by begindte (date) first (descending order)
+            if (dateA > dateB) return -1; // Older dates first
+            if (dateA < dateB) return 1;  // Newer dates last
+
+
+            // If begindte is the same, sort by storname in ascending order
             if (a.storname < b.storname) return -1;
             if (a.storname > b.storname) return 1;
-
+        
             return 0;  // If both date and storname are the same, maintain original order
         });
-    
+        
+
         // Group data by storname and targdate
         const groupedData = detailTargets.reduce((acc, item) => {
             const key = `${item.storname}-${item.targdate}`;
@@ -234,11 +247,12 @@ async function storeTargets() {
         const sortedData = Object.values(groupedData);
 
         // Add rows to the table
-        sortedData.forEach((item) => {
-            const isItalic = item.targdate === item.asofdate ? 'font-style: italic; font-weight: bold' : '';
+        sortedData.forEach((item,index) => {
+            const isItalic = item.targsale < item.totalnet ? 'font-style: italic; font-weight: bold' : '';
 
             const rowHTML = `
                 <tr class="trTargetDiv" data-storname="${item.storname}" data-targdate="${item.targdate}" style="${isItalic}">
+                    <td>${index+1}</td>
                     <td>${item.storname}</td>
                     <td>${formatter.format(item.targsale)}</td>
                     <td>${item.begindte}</td>
@@ -296,12 +310,12 @@ async function storeTargets() {
 
 storeTargets();
 
-
-
 function populateTable(filteredData, runtotal, pctachvd) {
-    const formatter = new Intl.NumberFormat('en-US'); // 'en-US' for U.S. formatting
+    // const formatter = new Intl.NumberFormat('en-US'); // 'en-US' for U.S. formatting
     const table = document.getElementById('salesDataTable');
     const tableBody = table.querySelector('tbody');
+    const tableFooter = table.querySelector('tfoot');
+    
     tableBody.innerHTML = ''; // Clear any existing rows
 
     // Create the table header with template literals (only once)
@@ -321,23 +335,65 @@ function populateTable(filteredData, runtotal, pctachvd) {
     }
 
     // Create the rows for the body using template literals
+    let totalNet = 0;
+    let lastRunTarg = 0;
+    let lastRuntotal = 0;
+    let lastPctAchvd = 0;
+
     filteredData.forEach((item, index) => {
-        if (item.netsales===0) return
-        let dDateSale=new Date(item.datesale)
+        if (item.netsales === 0) return;
+        
+        let dDateSale = new Date(item.datesale);
+        
+        totalNet += item.netsales;
+
+        // Update the last row data
+        lastRunTarg = item.run_targ;
+        lastRuntotal = runtotal[index] || 0;
+        lastPctAchvd = pctachvd[index] ? pctachvd[index] : 0;
 
         const rowHTML = `
             <tr id="trTableDiv">
                 <td id="tdDateSale">${formatDate(dDateSale)}</td> 
-                <td id="tdNetSales">${formatter.format(item.netsales)}</td> 
-                <td id="tdRun_Targ">${formatter.format(item.run_targ)}</td> 
-                <td id="tdRunTotal">${formatter.format(runtotal[index]) || '-'}</td> 
-                <td id="tdPctAchvd">${pctachvd[index] ? pctachvd[index].toFixed(2)+'%' : '-'}</td> 
+                <td id="tdNetSales" style="text-align: right; padding-right: 10px">${formatter.format(item.netsales.toFixed(2))}</td> 
+                <td id="tdRun_Targ" style="text-align: right; padding-right: 10px">${formatter.format(item.run_targ.toFixed(2))}</td> 
+                <td id="tdRunTotal" style="text-align: right; padding-right: 10px">${formatter.format(runtotal[index].toFixed(2)) || '-'}</td> 
+                <td id="tdPctAchvd" style="text-align: right; padding-right: 10px">${pctachvd[index] ? pctachvd[index].toFixed(2) + '%' : '-'}</td> 
             </tr>
         `;
         tableBody.insertAdjacentHTML('beforeend', rowHTML); // Append the row to the tbody
     });
-}
+    
 
+    // Check if footer is already present, otherwise add it
+    if (!tableFooter) {
+        const footerHTML = `
+            <tr></tr>
+            <tfoot>
+                <tr style="height: 50px">
+                    <td style="text-align: right"><strong>Total</strong></td>
+                    <td style="font-weight: bold; text-align: right; padding-right: 10px">${formatter.format(totalNet.toFixed(2))}</td> 
+                    <td style="font-weight: bold; text-align: right; padding-right: 10px">${formatter.format(lastRunTarg.toFixed(2))}</td> 
+                    <td style="font-weight: bold; text-align: right; padding-right: 10px">${formatter.format(lastRuntotal.toFixed(2))}</td> 
+                    <td style="font-weight: bold; text-align: right; padding-right: 10px">${lastPctAchvd ? lastPctAchvd.toFixed(2) + '%' : '-'}</td> 
+                </tr>
+            </tfoot>
+        `;
+        table.insertAdjacentHTML('beforeend', footerHTML); // Insert the footer at the end of the table
+    } else {
+        // Update the footer if already exists
+        tableFooter.innerHTML = `
+            <tr style="height: 50px">
+                <td style="text-align: right";><strong>Total</strong></td>
+                <td style="font-weight: bold; text-align: right; padding-right: 10px">${formatter.format(totalNet.toFixed(2))}</td> 
+                <td style="font-weight: bold; text-align: right; padding-right: 10px">${formatter.format(lastRunTarg.toFixed(2))}</td> 
+                <td style="font-weight: bold; text-align: right; padding-right: 10px">${formatter.format(lastRuntotal.toFixed(2))}</td> 
+                <td style="font-weight: bold; text-align: right; padding-right: 10px">${lastPctAchvd ? lastPctAchvd.toFixed(2) + '%' : '-'}</td> 
+            </tr>
+        `;
+    }
+
+}
 
 function formatDate(date) {
     const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -348,6 +404,7 @@ function formatDate(date) {
     return `${month}/${day}/${year} -${dayOfWeek}`;
 }
 
+// Now for window.onload, sort salesAchv similarly
 window.onload = async () => {
     const dataTarget = "./SalesTarg/DB_SALEACHV.json"; // Path to the JSON data file
 
@@ -358,27 +415,29 @@ window.onload = async () => {
 
         const salesAchv = await response.json(); // Parse the JSON data
 
-        // // Sort the salesAchv array by storname and targdate
-        // const sortedSalesAchv = salesAchv.sort((a, b) => {
-        //     // Sort by storname first
-        //     if (a.storname < b.storname) return -1;
-        //     if (a.storname > b.storname) return 1;
-        //     // If storname is the same, sort by targdate
-        //     return a.targdate < b.targdate ? -1 : a.targdate > b.targdate ? 1 : 0;
-        // });
+        // Sort the salesAchv array first by begindte (ascending), then by storname (ascending)
+        const sortedSalesAchv = salesAchv.sort((a, b) => {
+            // Split begindte to get the individual components (MM/DD/YYYY)
+            const [monthA, dayA, yearA] = a.begindte.split('/').map(Number);
+            const [monthB, dayB, yearB] = b.begindte.split('/').map(Number);
 
-// Sort the salesAchv array by targdate first, then by storname
-const sortedSalesAchv = salesAchv.sort((a, b) => {
-    // Sort by targdate first
-    if (a.targdate < b.targdate) return -1;
-    if (a.targdate > b.targdate) return 1;
+            // Create Date objects using the components in the correct order
+            const dateA = new Date(yearA, monthA - 1, dayA); // Month is zero-indexed
+            const dateB = new Date(yearB, monthB - 1, dayB);
 
-    // If targdate is the same, sort by storname
-    if (a.storname < b.storname) return -1;
-    if (a.storname > b.storname) return 1;
+            // Sort by begindte (date) first (ascending order)
+            // if (dateA < dateB) return -1; // Older dates first
+            // if (dateA > dateB) return 1;  // Newer dates last
+            if (dateA > dateB) return -1; // Older dates first
+            if (dateA < dateB) return 1;  // Newer dates last
 
-    return 0;
-});        
+            // If begindte is the same, sort by storname in ascending order
+            if (a.storname < b.storname) return -1;
+            if (a.storname > b.storname) return 1;
+
+            return 0;  // If both date and storname are the same, maintain original order
+        });
+
         // Use the first record's values as the initial parameters
         if (sortedSalesAchv.length > 0) {
             const firstRecord = sortedSalesAchv[0];
@@ -394,4 +453,3 @@ const sortedSalesAchv = salesAchv.sort((a, b) => {
         console.error('Error fetching or processing data on page load:', error);
     }
 };
-

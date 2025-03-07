@@ -1,0 +1,21 @@
+[{
+"stornum_": "00094",
+"storname": "AIRMALL BOHOL",
+"targsale":500000.00,
+"begindte": "01/01/2025",
+"targdate": "01/31/2025"
+},
+{
+"stornum_": "00094",
+"storname": "AIRMALL BOHOL",
+"targsale":430000.00,
+"begindte": "12/01/2024",
+"targdate": "12/31/2024"
+},
+{
+"stornum_": "00096",
+"storname": "BTG - CLARK DPD",
+"targsale":1700000.00,
+"begindte": "12/01/2024",
+"targdate": "12/31/2024"
+}]
