@@ -154,7 +154,8 @@ async function SalesTarget(cStorname='',dTargDate='') {
     }
 }
 
-async function storeTargets() {
+
+async function storeTargets(cStoreGrp='') {
     const table = document.getElementById('salesTargetTable');
     const tableBody = table.querySelector('tbody');
     tableBody.innerHTML = ''; // Clear any existing rows
@@ -184,8 +185,9 @@ async function storeTargets() {
         const response = await fetch(dataTarget);
         if (!response.ok) throw new Error('Network response was not ok');
     
-        const detailTargets = await response.json();
-    
+        let detailTargets = await response.json();
+        // detailTargets = detailTargets.filter((cGrp) => cGrp.storegrp === cStoreGrp);
+
    
         detailTargets.sort((a, b) => {
             // Split begindte to get the individual components (MM/DD/YYYY)
@@ -195,11 +197,7 @@ async function storeTargets() {
             // Create Date objects using the components in the correct order
             const dateA = new Date(yearA, monthA - 1, dayA); // Month is zero-indexed
             const dateB = new Date(yearB, monthB - 1, dayB);
-        
-            // Sort by begindte (date) first (ascending order)
-            // if (dateA < dateB) return -1; // Older dates first
-            // if (dateA > dateB) return 1;  // Newer dates last
-        
+       
             // Sort by begindte (date) first (descending order)
             if (dateA > dateB) return -1; // Older dates first
             if (dateA < dateB) return 1;  // Newer dates last
@@ -223,6 +221,7 @@ async function storeTargets() {
                     begindte: item.begindte,
                     targdate: item.targdate,
                     asofdate: item.datesale, // Initialize with the first date
+                    storegrp: item.storegrp,
                     maxRuntotal: item.runtotal, // Track the max runtotal
                     totalnet: item.netsales, // Initialize with the first net sale
                 };
@@ -248,6 +247,10 @@ async function storeTargets() {
 
         // Add rows to the table
         sortedData.forEach((item,index) => {
+            if (cStoreGrp && cStoreGrp !== 'All Business Group' && item.storegrp !== cStoreGrp) {
+                return; // Skip if the group doesn't match
+            }
+    
             const isItalic = item.targsale < item.totalnet ? 'font-style: italic; font-weight: bold' : '';
 
             const rowHTML = `
@@ -308,7 +311,49 @@ async function storeTargets() {
     }
 }
 
-storeTargets();
+async function populateStoreGrp() {
+    const dataTarget = "./SalesTarg/DB_SALEACHV.json";
+    const listGrup = document.getElementById('storeGroup');
+    try {
+        const response = await fetch(dataTarget);
+        if (!response.ok) throw new Error('Network response was not ok');
+    
+        const detailTargets = await response.json();
+
+        // Create and insert a All Group option as the first item
+        const allGrupOption = document.createElement('option');
+        allGrupOption.value = ''; // No value for the first option
+        allGrupOption.textContent = 'All Business Group'; // Text for the first option
+        listGrup.appendChild(allGrupOption);
+
+        const seenGroupNames = new Set();
+        detailTargets.forEach(data => {
+            // Populate Business Groups
+            if (!seenGroupNames.has(data.storegrp)) {
+                seenGroupNames.add(data.storegrp);
+        
+                const option1 = document.createElement('option');
+                option1.value = data.storegrp;
+                option1.textContent = data.storegrp;
+                listGrup.appendChild(option1);
+            }
+        })
+    
+
+    } catch (error) {
+        console.error('Error fetching data:', error);
+    }
+
+    listGrup.addEventListener('change', () => {
+        const selectedGroup = listGrup.value;
+        storeTargets(selectedGroup);
+    });
+    
+}
+
+
+populateStoreGrp()
+storeTargets('');
 
 function populateTable(filteredData, runtotal, pctachvd) {
     // const formatter = new Intl.NumberFormat('en-US'); // 'en-US' for U.S. formatting
